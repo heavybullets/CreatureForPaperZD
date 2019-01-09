@@ -18,8 +18,11 @@ After creating the class, you must link the AnimSequence class with its render c
 
 For this, APaperZDCharacter inherits from IPaperZDAnimInstanceManager and provides the method ConfigurePlayer, which handles the created AnimInstance's player and expects the user to configure it. 
 
-You must call: Player->RegisterRenderComponent(TSubclassOf<UPaperZDAnimInstance>,UPrimitiveComponent*) to link the Render+Sequence.
-This is an BlueprintNativeEvent, so you can implement it on blueprint or in c++. Default implementation links Paper2D Flipbook component to the Flipbook sequences.
+In order to link Render+Sequence you must call:
+
+`Player->RegisterRenderComponent(TSubclassOf<UPaperZDAnimInstance>,UPrimitiveComponent*)`
+  
+This is a BlueprintNativeEvent, so you can implement it on blueprint or in c++. Default implementation links Paper2D Flipbook component to the Flipbook sequences.
   
   Hope this small adition helps users with their 2D efforts on unreal.
   Cheers!
