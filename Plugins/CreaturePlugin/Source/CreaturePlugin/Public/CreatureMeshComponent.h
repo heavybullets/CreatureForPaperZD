@@ -429,7 +429,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Components|Creature")
 	void SetBluePrintBlendActiveAnimation_Name(FName name_in, float factor);
 
-	// Blueprint version of returning the curernt active animation name
+	// Blueprint version of returning the current active animation name
 	UFUNCTION(BlueprintCallable, Category = "Components|Creature")
 	FName GetBluePrintActiveAnimationName();
 	
@@ -654,6 +654,10 @@ public:
 	// Returns the world space point of a vertex attachment given its name
 	UFUNCTION(BlueprintCallable, Category = "Components|Creature")
 	FVector GetVertexAttachment(FString name_in);
+
+	/* Obtains the Animation duration for the given name. */
+	UFUNCTION(BlueprintPure, Category = "Components|Creature")
+	float GetAnimationDuration(const FName& AnimationName) const;
 
 	CreatureCore& GetCore();
 

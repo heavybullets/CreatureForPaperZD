@@ -412,7 +412,15 @@ FVector UCreatureMeshComponent::GetVertexAttachment(FString name_in)
 	return FVector(0,0,0);
 }
 
-CreatureCore& UCreatureMeshComponent::GetCore()
+float UCreatureMeshComponent::GetAnimationDuration(const FName& AnimationName) const
+{
+	//Ugly, but GetCore returns a non const casted struct
+	UCreatureMeshComponent* nonConstThis = const_cast<UCreatureMeshComponent*>(this);
+	CreatureModule::CreatureAnimation* Animation = nonConstThis->GetCore().GetCreatureManager()->GetAnimation(AnimationName);
+	return (Animation->getEndTime() - Animation->getStartTime()) / (30.0f * animation_speed);
+}
+
+CreatureCore& UCreatureMeshComponent::GetCore() 
 {
 	return creature_core;
 }

@@ -357,7 +357,7 @@ namespace CreatureModule {
                           glm::float32 * target_pts,
 						  float input_run_time);
         
-        void ProcessAutoBlending();
+        void ProcessAutoBlending(float DeltaTime);
 
 		void increAutoBlendRuntimes(float delta_in);
 
@@ -380,8 +380,6 @@ namespace CreatureModule {
         float run_time;
         float time_scale;
         glm::float32 * blend_render_pts[2];
-        bool do_blending;
-        float blending_factor;
         FName active_blend_animation_names[2];
 		TMap<FName, float> active_blend_run_times;
         bool mirror_y;
@@ -390,8 +388,19 @@ namespace CreatureModule {
         bool should_loop;
         bool do_auto_blending;
         FName auto_blend_names[2];
-        float auto_blend_delta;
 		bool do_point_caching;
+		
+		//@NOTE: changed meaning of auto_blend_delta, now its the time it takes to complete the blending
+		float auto_blend_delta;
+
+		/* Current time for the blending */
+		float blend_current_time;
+
+		/* Current blending factor */
+		float blending_factor;
+
+		/* If blending is enabled. */
+		bool do_blending;
         
         std::function<void (TMap<FName, meshBone *>&) > bones_override_callback;
         

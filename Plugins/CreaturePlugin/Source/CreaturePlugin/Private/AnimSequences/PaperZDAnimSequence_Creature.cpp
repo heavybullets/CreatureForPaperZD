@@ -6,6 +6,7 @@
 UPaperZDAnimSequence_Creature::UPaperZDAnimSequence_Creature() : Super()
 {
 	SpeedOverride = 2.0f;
+	BlendTime = 0.25f;
 }
 
 #if WITH_EDITOR
@@ -47,7 +48,7 @@ void UPaperZDAnimSequence_Creature::PostLoad()
 	}
 }
 
-void UPaperZDAnimSequence_Creature::UpdateRenderPlayback(UPrimitiveComponent* RenderComponent, const float Time) const
+void UPaperZDAnimSequence_Creature::BeginSequencePlayback(class UPrimitiveComponent* RenderComponent, bool bLooping, bool bIsPreviewPlayback /* = false */) const
 {
 	//Cast it to a UCreatureMeshComponent
 	UCreatureMeshComponent* CreatureMesh = Cast<UCreatureMeshComponent>(RenderComponent);
@@ -63,8 +64,15 @@ void UPaperZDAnimSequence_Creature::UpdateRenderPlayback(UPrimitiveComponent* Re
 		//Make sure we have the render is using the same animation
 		if (CreatureMesh->GetBluePrintActiveAnimationName() != AnimationName)
 		{
-			CreatureMesh->SetBluePrintActiveAnimation_Name(AnimationName);
-			CreatureMesh->SetBluePrintAnimationPlay(false);
+			if (bIsPreviewPlayback)
+			{
+				CreatureMesh->SetBluePrintActiveAnimation_Name(AnimationName);
+				CreatureMesh->SetBluePrintAnimationPlay(false);
+			}
+			else
+			{
+				CreatureMesh->SetBluePrintBlendActiveAnimation_Name(AnimationName, BlendTime);
+			}
 		}
 
 		//Material should be the same
@@ -73,11 +81,25 @@ void UPaperZDAnimSequence_Creature::UpdateRenderPlayback(UPrimitiveComponent* Re
 			CreatureMesh->SetMaterial(0, Material);
 		}
 
-		//Change values
-		const float StartFrame = CachedAnimationData->getStartTime();
-		const float CurrentFrame = StartFrame + Time * GetFramesPerSecond();
-		CreatureMesh->SetBluePrintAnimationFrame(CurrentFrame);
+		//Update common values
+		CreatureMesh->SetBluePrintAnimationLoop(bLooping);
 		CreatureMesh->animation_speed = SpeedOverride;
+	}
+}
+
+void UPaperZDAnimSequence_Creature::UpdateRenderPlayback(class UPrimitiveComponent* RenderComponent, const float Time, bool bIsPreviewPlayback /* = false */) const
+{
+	//Cast it to a UCreatureMeshComponent
+	UCreatureMeshComponent* CreatureMesh = Cast<UCreatureMeshComponent>(RenderComponent);
+	if (CreatureMesh && CachedAnimationData)
+	{
+		//Only change preview playback time, CreatureRender manages the runtime updates
+		if (bIsPreviewPlayback)
+		{
+			const float StartFrame = CachedAnimationData->getStartTime();
+			const float CurrentFrame = StartFrame + Time * GetFramesPerSecond();
+			CreatureMesh->SetBluePrintAnimationFrame(CurrentFrame);
+		}
 	}
 }
 
@@ -97,11 +119,11 @@ TSubclassOf<UPrimitiveComponent> UPaperZDAnimSequence_Creature::GetRenderCompone
 	return UCreatureMeshComponent::StaticClass();
 }
 
-void UPaperZDAnimSequence_Creature::ConfigureRenderComponent(UPrimitiveComponent* RenderComponent) const
+void UPaperZDAnimSequence_Creature::ConfigureRenderComponent(class UPrimitiveComponent* RenderComponent, bool bIsPreviewPlayback /* = false */) const
 {
 	//Should be a creature mesh component
 	UCreatureMeshComponent* CreatureMesh = Cast<UCreatureMeshComponent>(RenderComponent);
-	if (CreatureMesh)
+	if (CreatureMesh && bIsPreviewPlayback)
 	{
 		//Playback time and looping should not be managed by the mesh for full support
 		CreatureMesh->SetBluePrintAnimationPlay(false);

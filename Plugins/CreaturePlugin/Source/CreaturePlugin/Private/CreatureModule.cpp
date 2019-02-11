@@ -1371,11 +1371,11 @@ namespace CreatureModule {
         }
 
 		ResetBlendTime(animation_name_in);
-        
-        auto_blend_delta = blend_delta;
+
+		auto_blend_delta = blend_delta;
         auto_blend_names[0] = active_animation_name;
         auto_blend_names[1] = animation_name_in;
-        blending_factor = 0;
+		blend_current_time = 0; //NOTE: changed, now the blend_current_time accumulates
 
 		active_animation_name = animation_name_in;
         
@@ -1580,10 +1580,12 @@ namespace CreatureModule {
     }
     
     void
-    CreatureManager::ProcessAutoBlending()
+    CreatureManager::ProcessAutoBlending(float DeltaTime)
     {
         // process blending factor
-        blending_factor += auto_blend_delta;
+		blend_current_time += DeltaTime;
+		blending_factor = blend_current_time / auto_blend_delta;
+        //blending_factor += auto_blend_delta * DeltaTime;
         if(blending_factor > 1)
         {
             blending_factor = 1;
@@ -1731,12 +1733,12 @@ namespace CreatureModule {
         {
             return;
         }
-        
+		
         increRunTime(delta * time_scale);
         
         if(do_auto_blending)
         {
-            ProcessAutoBlending();
+            ProcessAutoBlending(delta); //@NOTE: changed processAutoBlending so it's frame independent
 			// process run times for blends
 			increAutoBlendRuntimes(delta * time_scale);
         }
